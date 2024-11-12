@@ -1,16 +1,11 @@
 import time
+from Utils import navigate_to_url
 from selenium import webdriver # type: ignore
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from bs4 import BeautifulSoup # type: ignore
-
-
-def navigate_to_subreddit(driver, url):
-
-    driver.get(url)
-
 
 
 def login(driver):
@@ -73,7 +68,7 @@ def gather_posts(driver, amount):
 def main():
     browser = webdriver.Chrome()
 
-    navigate_to_subreddit(driver=browser, url="https://www.reddit.com/r/AmItheAsshole/")
+    navigate_to_url(driver=browser, url="https://www.reddit.com/r/AmItheAsshole/")
     login(driver=browser)
     posts = gather_posts(driver=browser,amount=10)
     print("POST LEN:", len(posts), "\n Posts", posts)
