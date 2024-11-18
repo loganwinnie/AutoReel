@@ -1,48 +1,61 @@
+from bucket_upload import upload_downloaded_files
 from Utils import navigate_to_url
-from pytube import YouTube
 from selenium import webdriver # type: ignore
 from selenium.webdriver.common.by import By 
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from bs4 import BeautifulSoup # type: ignore
-
+from yt_dlp import YoutubeDL
+from random import choice
 
 
 def grab_videos(driver):
-    video_area = driver.find_element(By.ID, "contents")
     page_soup = BeautifulSoup(driver.page_source, 'html.parser')
     video_soup = page_soup.find(id="contents")
     videos = video_soup.find_all(id="video-title")
 
-    videos = [{"title": video.get("title"), "link": video.get("href")} for video in videos]
-
-
-    # videos = video_area.find_elements(By.ID, "video-title")
+    videos = [{"title": video.get("title", None), "link": f"https://www.youtube.com/{video.get("href")}"} 
+              for video in videos 
+              if "gameplay" in video.get("title", None).lower()]
+    if len(videos) > 5:
+        return videos[:5]
     return videos
 
+def search_videos(query):
+    search = Search(query)
+    search.results[0].streams.filter(file_extension='mp4')
+
+
 def download_videos(videos):
+    yt_opts = {
+        "paths": {"home": "./video_downloads"},
+        "restrictfilenames": True,
+
+    }
+    ydl = YoutubeDL(yt_opts)
+
     for video in videos:
-         vid = YouTube(video.link)
-         print(vid)
-         print(vid.streams())
+        try:
+            ydl.download(video["link"])
+            print("Downloaded", video["title"])
+        except Exception as err:
+            print(f"Failed to download {video["link"]}")
 
-
-
-
-
-
-
-
-
-
+def read_file_and_select(path):
+    file = open(path)
+    lines = file.readlines()
+    file.close() 
+    return choice(lines)
 
 def main():
     browser = webdriver.Chrome()
-
-    navigate_to_url(driver=browser, url="https://www.youtube.com/results?search_query=gameplay++no+copyright")
+    
+    game = read_file_and_select("./search_terms.txt")
+    print(game)
+    navigate_to_url(driver=browser, url=f"https://www.youtube.com/results?search_query={game}+gameplay++no+copyright")
     videos = grab_videos(driver=browser)
     download_videos(videos=videos)
+    upload_downloaded_files()
 
 main()
+
+
 
