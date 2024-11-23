@@ -1,10 +1,9 @@
 from bucket_upload import upload_downloaded_files
-from Utils import navigate_to_url, read_file_and_select
+from Utils import read_file_and_select
 from selenium import webdriver # type: ignore
 from selenium.webdriver.common.by import By 
 from bs4 import BeautifulSoup # type: ignore
 from yt_dlp import YoutubeDL
-from random import choice
 
 
 def grab_videos(driver):
@@ -41,9 +40,9 @@ def download_videos(videos):
 
 
 browser = webdriver.Chrome()
-game = read_file_and_select("./search_terms.txt")
+game = read_file_and_select("./videogames.txt")
 print(game)
-navigate_to_url(driver=browser, url=f"https://www.youtube.com/results?search_query={game}+gameplay++no+copyright")
+browser.get(f"https://www.youtube.com/results?search_query={game}+gameplay++no+copyright")
 videos = grab_videos(driver=browser)
 download_videos(videos=videos)
 upload_downloaded_files()

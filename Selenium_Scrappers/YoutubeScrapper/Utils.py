@@ -1,5 +1,5 @@
-def navigate_to_url(driver, url):
-    driver.get(url)
+
+from random import choice
 
 def read_file_and_select(path):
     file = open(path)
