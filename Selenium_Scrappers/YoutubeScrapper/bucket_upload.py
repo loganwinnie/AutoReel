@@ -25,4 +25,3 @@ def upload_file_to_bucket(file, bucket):
             print(err.message)
 
 
-upload_downloaded_files()
