@@ -3,11 +3,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+# from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup # type: ignore
 from dotenv import load_dotenv
 from os import environ
 
 load_dotenv() 
+
+
+
 
 def reddit_login(driver):
     """
@@ -16,16 +21,18 @@ def reddit_login(driver):
 
         Uses credentials from enviorment to sign into reddit. 
     """
+    driver.get("https://www.reddit.com/login/")
     wait = WebDriverWait(driver, timeout=10, poll_frequency=.2)
-    wait.until(EC.visibility_of_element_located((By.ID, "login-button")))
-    login_button = driver.find_element(By.ID, "login-button")
+    # wait.until(EC.visibility_of_element_located((By.ID, "login-button")))
+    print(driver.page_source)
+    # login_button = driver.find_element(By.ID, "login-button")
 
-    if login_button:
-        login_button.click()
-        wait.until(EC.visibility_of_element_located((By.ID, "login-username")))
-        driver.find_element(By.ID, "login-username").send_keys(environ.get("REDDIT_USER"))
-        driver.find_element(By.ID, "login-password").send_keys(environ.get("REDDIT_PASSWORD"))
-        driver.find_element(By.ID, "login-password").send_keys(Keys.RETURN)
+    # if login_button:
+        # login_button.click()
+    wait.until(EC.visibility_of_element_located((By.ID, "login-username")))
+    driver.find_element(By.ID, "login-username").send_keys(environ.get("REDDIT_USER"))
+    driver.find_element(By.ID, "login-password").send_keys(environ.get("REDDIT_PASSWORD"))
+    driver.find_element(By.ID, "login-password").send_keys(Keys.RETURN)
 
 
 def gather_posts(driver, amount):
@@ -83,10 +90,21 @@ def gather_posts(driver, amount):
     return post_list
 
 
-browser = webdriver.Chrome()
-browser.get("https://www.reddit.com/r/AmItheAsshole/")
+option = Options()
+option.add_argument("--disable-extensions") 
+option.add_argument("--disable-infobars") 
+option.add_argument("--start-maximized") 
+option.add_argument("--disable-notifications") 
+option.add_argument('--headless') 
+option.add_argument('--no-sandbox') 
+option.add_argument('--disable-dev-shm-usage') 
+# service = Service("/usr/bin/chromedriver")
+browser = webdriver.Chrome(options=option)
+
 
 reddit_login(driver=browser)
-posts = gather_posts(driver=browser,amount=10)
+browser.get("https://www.reddit.com/r/AmItheAsshole/")
+
+posts = gather_posts(driver=browser,amount=5)
 print("POST LEN:", len(posts), "\n Posts", posts)
 

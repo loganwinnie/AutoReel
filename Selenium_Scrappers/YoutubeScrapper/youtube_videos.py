@@ -4,6 +4,8 @@ from selenium import webdriver # type: ignore
 from selenium.webdriver.common.by import By 
 from bs4 import BeautifulSoup # type: ignore
 from yt_dlp import YoutubeDL
+from selenium.webdriver.chrome.options import Options
+
 
 
 def grab_videos(driver):
@@ -39,7 +41,16 @@ def download_videos(videos):
             print(f"Failed to download {video["link"]}")
 
 
-browser = webdriver.Chrome()
+option = Options()
+option.add_argument("--disable-extensions") 
+option.add_argument("--disable-infobars") 
+option.add_argument("--start-maximized") 
+option.add_argument("--disable-notifications") 
+option.add_argument('--headless') 
+option.add_argument('--no-sandbox') 
+option.add_argument('--disable-dev-shm-usage') 
+# service = Service("/usr/bin/chromedriver")
+browser = webdriver.Chrome(options=option)
 game = read_file_and_select("./videogames.txt")
 print(game)
 browser.get(f"https://www.youtube.com/results?search_query={game}+gameplay++no+copyright")
