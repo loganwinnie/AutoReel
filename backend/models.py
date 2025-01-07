@@ -9,7 +9,7 @@ class Post(SQLModel, table=True):
     url: str
     content: str
     subreddit: str
-    audio_generated: bool = False
+    audio_file_url: str | None = None
     used: bool = False
 
 

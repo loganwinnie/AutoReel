@@ -58,8 +58,7 @@ def get_posts_from_subreddit(subreddit: str = "Autoreel", limit: int = 15):
         raise HTTPException(500, detail="Failed to fetch post.")
 
 
-
-def save_post_to_db(post_id: str):
+def save_post_db(post_id: str):
 
     post = None
 
@@ -88,7 +87,8 @@ def save_post_to_db(post_id: str):
         except:
             raise HTTPException(500, "Failed to save post.")
 
-def get_saved_posts_from_db(offset:int = 0, limit:int = 15):
+
+def get_saved_posts_db(offset:int = 0, limit:int = 15):
     with Session(engine) as session:
         try:
            statement = select(Post).offset(offset=offset).limit(limit=limit)
@@ -98,7 +98,7 @@ def get_saved_posts_from_db(offset:int = 0, limit:int = 15):
             raise HTTPException(500, "Failed to get posts.")
 
 
-def delete_saved_post_from_db(post_id: str):
+def delete_saved_post_db(post_id: str):
     with Session(engine) as session:
         try:
             statement = select(Post).where(Post.id == post_id)
@@ -111,3 +111,44 @@ def delete_saved_post_from_db(post_id: str):
             raise HTTPException(404, "Post not found.")
         except:
             raise HTTPException(500, "Failed to delete post.")
+        
+def patch_post_audio_db(post_id: str, post: Post):
+    with Session(engine) as session:
+        try:
+            statement = select(Post).where(Post.id == post_id)
+            results = session.exec(statement)
+            q_post = results.one()
+            q_post.audio_file_url = post.audio_file_url
+            session.add(q_post)
+            session.commit()
+            session.refresh(q_post)
+            return q_post
+        except NoResultFound:
+            raise HTTPException(404, "Post not found.")
+        except:
+            raise HTTPException(500, "Failed to update post audio url.")
+        
+def use_post_db(post_id: str):
+    with Session(engine) as session:
+        try:
+            statement = select(Post).where(Post.id == post_id)
+            results = session.exec(statement)
+            post = results.one()
+            
+            if post.used is True:
+                raise HTTPException(400, "Post already Used.")
+
+            post.used = True
+            session.add(post)
+            session.commit()
+            session.refresh(post)
+            return post
+        
+        except HTTPException as err:
+            raise err
+        except NoResultFound:
+            raise HTTPException(404, "Post not found.")
+        except:
+            raise HTTPException(500, "Failed to update post status.")
+        
+            
