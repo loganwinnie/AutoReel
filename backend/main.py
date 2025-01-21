@@ -17,7 +17,6 @@ async def lifespan(app: FastAPI):
     
 app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan)
 
-
 @app.get("/reddit", tags=["Reddit"])
 def get_posts(
     limit: Annotated[
@@ -36,12 +35,10 @@ def get_posts(
     posts = get_posts_from_subreddit(subreddit=subreddit, limit=limit)
     return {"posts": posts}
 
-
 @app.post("/posts", tags=["Posts"])
 def save_post(post_id: str):
     post = save_post_db(post_id=post_id)
     return {"post": post}
-
 
 @app.get("/posts", tags=["Posts"])
 def get_saved_posts(
@@ -61,7 +58,6 @@ def get_saved_posts(
     posts = get_saved_posts_db(offset=offset,limit=limit)
     return {"posts": posts}
 
-
 @app.delete("/posts/{post_id}", tags=["Posts"])
 def delete_saved_post(post_id: Annotated[str, Path(title="Id of the post to delete.")], ):
     post = delete_saved_post_db(post_id=post_id)
@@ -79,6 +75,4 @@ def patch_audio_saved_post(
     post_id: Annotated[str, Path(title="Id of the post to change used status.")]):
     post = use_post_db(post_id=post_id)
     return {"used": post}
-
-
 
